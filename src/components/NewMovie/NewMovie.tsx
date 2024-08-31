@@ -1,36 +1,54 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { TextField } from '../TextField';
 import { Movie } from '../../types/Movie';
-
-const initialFormData: Movie = {
-  title: '',
-  description: '',
-  imgUrl: '',
-  imdbUrl: '',
-  imdbId: '',
-};
 
 type Props = {
   onAdd: (movie: Movie) => void;
 };
+
 export const NewMovie: React.FC<Props> = ({ onAdd }) => {
+  // Increase the count after successful form submission
+  // to reset touched status of all the `Field`s
   const [count, setCount] = useState(0);
-  const [formData, setFormData] = useState<Movie>(initialFormData);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [imdbUrl, setImdbUrl] = useState('');
+  const [imgUrl, setImgUrl] = useState('');
+  const [imdbId, setImdbId] = useState('');
 
-  function handleChange(field: keyof Movie, value: string) {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  }
+  const fieldsValues = {
+    title,
+    imgUrl,
+    imdbUrl,
+    imdbId,
+  };
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    onAdd(formData);
-    setFormData(initialFormData);
-    setCount(count + 1);
-  }
-
-  const isFormFilled = (Object.keys(formData) as Array<keyof Movie>).every(
-    field => formData[field] !== '' || field === 'description',
+  const trimmedFieldsValues = Object.values(fieldsValues).map(value =>
+    value.trim(),
   );
+
+  const hasEmptyField = trimmedFieldsValues.includes('');
+
+  function reset() {
+    setTitle('');
+    setDescription('');
+    setImgUrl('');
+    setImdbUrl('');
+    setImdbId('');
+  }
+
+  const handleSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
+
+    onAdd({
+      ...fieldsValues,
+      description,
+    });
+
+    setCount(currentCount => currentCount + 1);
+
+    reset();
+  };
 
   return (
     <form className="NewMovie" key={count} onSubmit={handleSubmit}>
@@ -39,39 +57,39 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
       <TextField
         name="title"
         label="Title"
-        value={formData.title}
-        onChange={value => handleChange('title', value)}
+        value={title}
+        onChange={setTitle}
         required
       />
 
       <TextField
         name="description"
         label="Description"
-        value={formData.description}
-        onChange={value => handleChange('description', value)}
+        value={description}
+        onChange={setDescription}
       />
 
       <TextField
         name="imgUrl"
         label="Image URL"
-        value={formData.imgUrl}
-        onChange={value => handleChange('imgUrl', value)}
+        value={imgUrl}
+        onChange={setImgUrl}
         required
       />
 
       <TextField
         name="imdbUrl"
         label="Imdb URL"
-        value={formData.imdbUrl}
-        onChange={value => handleChange('imdbUrl', value)}
+        value={imdbUrl}
+        onChange={setImdbUrl}
         required
       />
 
       <TextField
         name="imdbId"
         label="Imdb ID"
-        value={formData.imdbId}
-        onChange={value => handleChange('imdbId', value)}
+        value={imdbId}
+        onChange={setImdbId}
         required
       />
 
@@ -81,7 +99,7 @@ export const NewMovie: React.FC<Props> = ({ onAdd }) => {
             type="submit"
             data-cy="submit-button"
             className="button is-link"
-            disabled={!isFormFilled}
+            disabled={hasEmptyField}
           >
             Add
           </button>

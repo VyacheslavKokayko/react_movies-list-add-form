@@ -6,11 +6,11 @@ import { useState } from 'react';
 import { Movie } from './types/Movie';
 
 export const App = () => {
-  const [movies, setMovies] = useState<Movie[]>(moviesFromServer);
+  const [movies, setMovies] = useState(moviesFromServer);
 
-  function addMovie(movie: Movie) {
-    setMovies((prev: Movie[]) => [...prev, movie]);
-  }
+  const addMovie = (movie: Movie) => {
+    setMovies(currentMovies => [...currentMovies, movie]);
+  };
 
   return (
     <div className="page">
